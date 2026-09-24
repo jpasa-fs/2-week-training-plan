@@ -1,0 +1,28 @@
+trigger:
+- dev
+
+variables:
+
+  # Azure Resource Manager connection created during pipeline creation
+  azureSubscription: '0f2b525e-caf9-4767-921d-655478528f3b'
+
+  # Web app name
+  webAppName: '2-week-training-plan'
+
+  # Environment name
+  environmentName: 'dev'
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '18.x'
+    displayName: 'Install Node.js'
+
+  - script: |
+      npm ci
+      npm run build
+      npm test
+    displayName: 'Install, build, and test'
