@@ -1,6 +1,9 @@
 trigger:
 - dev
 
+pool:
+  vmImage: 'ubuntu-latest'
+
 variables:
 
   # Azure Resource Manager connection created during pipeline creation
@@ -11,9 +14,6 @@ variables:
 
   # Environment name
   environmentName: 'dev'
-
-  # Agent VM image name
-  vmImageName: 'ubuntu-latest'
 
 steps:
   - task: NodeTool@0
