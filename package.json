@@ -4,8 +4,10 @@
   "description": "A Node.js/Express, Typescript, & MySQL project for the purposes of training",
   "main": "index.js",
   "scripts": {
-    "start": "npx tsc && node dist/index.js",
-    "watch": "tsc --watch"
+    "start": "npx tsc && npx nodemon dist/index.js",
+    "watch": "tsc --watch",
+    "build": "npx tsc",
+    "test" : "tsc && node --test dist/tests/order-service.test.js"
   },
   "keywords": [],
   "author": "Joanna Reggie Pasa",
@@ -21,6 +23,7 @@
   "dependencies": {
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "mysql2": "^3.24.4"
+    "mysql2": "^3.24.4",
+    "sequelize": "^6.37.8"
   }
 }

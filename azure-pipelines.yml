@@ -4,6 +4,17 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+services:
+  mysql:
+    image: mysql:8.0
+    env:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test_db
+    ports:
+      - 3306:3306
+    # Essential for MySQL initialization checks on hosted runners
+    options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
 variables:
 
   # Azure Resource Manager connection created during pipeline creation
