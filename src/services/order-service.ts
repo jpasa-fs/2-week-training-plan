@@ -1,15 +1,12 @@
 import { type Request, type Response } from "express";
-import { Order, OrderItem } from "../models/order.js";
+import { Team, Member } from "../models/order.js";
 
-export async function getCustomerOrdersWithItems(
+export async function getOrgTeamsWithMembers(
   request: Request,
   response: Response,
 ) {
-  const user_id = Number(request.params.id);
-  const orders = await Order.findAll({
-    where: { user_id },
-    include: OrderItem,
-  });
+  const org_id = Number(request.params.id);
+  const teams = await Team.findAll({ where: { org_id }, include: Member });
 
-  response.json(orders);
+  return response.json(teams);
 }

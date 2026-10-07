@@ -1,10 +1,10 @@
 import express, { type Express } from "express";
 import { sequelize } from "./conn.js";
-import { getCustomerOrdersWithItems } from "./services/order-service.js";
+import { getOrgTeamsWithMembers } from "./services/order-service.js";
 
 const app: Express = express();
 
-app.get("/order/:id", getCustomerOrdersWithItems);
+app.get("/org/:id", getOrgTeamsWithMembers);
 
 sequelize.sync().then(() => {
   app.listen(process.env.PORT ?? 3000, () => {

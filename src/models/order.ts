@@ -1,31 +1,41 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../conn.js";
 
-export const Order = sequelize.define(
-  "Order",
+export const Organization = sequelize.define(
+  "Organization",
   {
     name: DataTypes.STRING,
-    user_id: DataTypes.INTEGER,
   },
   {
-    tableName: "orders",
+    tableName: "organizations",
     timestamps: false,
   },
 );
 
-export const OrderItem = sequelize.define(
-  "OrderItem",
+export const Team = sequelize.define(
+  "Team",
   {
     name: DataTypes.STRING,
-    sku: DataTypes.STRING,
-    price: DataTypes.INTEGER,
-    order_id: DataTypes.INTEGER,
+    org_id: DataTypes.INTEGER,
   },
   {
-    tableName: "order_items",
+    tableName: "teams",
     timestamps: false,
   },
 );
 
-Order.hasMany(OrderItem, { foreignKey: "order_id" });
-OrderItem.belongsTo(Order, { foreignKey: "order_id" });
+export const Member = sequelize.define(
+  "Member",
+  {
+    name: DataTypes.STRING,
+    team_id: DataTypes.INTEGER,
+  },
+  {
+    tableName: "members",
+    timestamps: false,
+  },
+);
+Organization.hasMany(Team, { foreignKey: "org_id" });
+Team.belongsTo(Organization, { foreignKey: "org_id" });
+Team.hasMany(Member, { foreignKey: "team_id" });
+Member.belongsTo(Team, { foreignKey: "team_id" });
