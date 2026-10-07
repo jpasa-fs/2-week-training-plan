@@ -1,0 +1,3 @@
+The pipeline failed because `npm ci` requires `package.json` and `package-lock.json` to be in sync. The application’s `package.json` requires `axios ^1.7.0` but `package-lock.json` specifies version `1.6.0` which does not satisfy that requirement.
+
+This is an example of dependency/lockfile drift. The dependency versions recorded in the lockfile do not match the requirements in `package.json`. The issue was resolved by running `npm install` which updated the lockfile to reflect those requirements.
