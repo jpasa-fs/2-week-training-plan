@@ -4,63 +4,50 @@ import { connection } from "../conn.js";
 
 const cache = new NodeCache();
 
-// Simulated third-party pricing API that is down
-const thirdPartyPricingApi = {
-  getCurrentPrice: async (sku: string) => {
-    return Promise.reject(new Error(`Third-party API is down ${sku}`));
-  },
-};
-
-// Get order cache
-function getCache(id: string | string[] | undefined): [] {
-  return cache.get(`order:${id}`) ?? [];
+// Mock API call to get shipment status based on carrier and tracking number
+function getStatus(carrier: string, trackingNumber: string) {
+  return Promise.resolve({
+    carrier,
+    trackingNumber,
+    status: "In Transit",
+    location: "PH Distribution Center",
+  });
+  // return Promise.reject(new Error(`Third-party API is down for ${carrier}`));
 }
 
-// Set order cache after DB call
-function setCache(response: any): void {
-  const id = response[0].order_id;
-  cache.set(`order:${id}`, response);
-}
+export async function getShipmentStatus(request: Request, response: Response) {
+  const cacheKey = `shipment:${request.params.id}:last-location`;
+  let shipment, shipmentApiResult;
+  let shipmentCache = cache.get(cacheKey);
 
-export async function getOrderSummary(request: Request, response: Response) {
-  try {
-    let dbResult, cacheResult, pricingResult;
+  const dbPromise = connection.query("SELECT * FROM shipments WHERE id = ?", [
+    request.params.id,
+  ]);
 
-    const dbPromise = connection.query(
-      "SELECT * FROM orders WHERE order_id = ?",
-      [request.params.id],
-    );
-    const pricingApiPromise = thirdPartyPricingApi.getCurrentPrice("100-ABC");
+  const apiPromise = getStatus("LBC", "LBC-01");
 
-    const [dbResultRes, pricingResultRes] = await Promise.allSettled([
-      dbPromise,
-      pricingApiPromise,
-    ]);
+  const [dbResultRes, apiResultRes] = await Promise.allSettled([
+    dbPromise,
+    apiPromise,
+  ]);
 
-    if (dbResultRes.status === "fulfilled") {
-      dbResult = dbResultRes.value[0];
-      setCache(dbResult);
-      cacheResult = getCache(request.params.id);
-    } else {
-      console.error(`DB API call error: ${dbResultRes.reason.message}`);
-    }
-
-    if (pricingResultRes.status === "fulfilled") {
-      console.log("pricingResValue", pricingResultRes.value);
-      pricingResult = pricingResultRes.value;
-    } else {
-      console.error(
-        `Pricing API call error: ${pricingResultRes.reason.message}`,
-      );
-    }
-
-    response.json({
-      order: dbResult ?? [],
-      cached: cacheResult ?? [],
-      livePrice: pricingResult ?? [],
-    });
-  } catch (error) {
-    console.error(error);
-    response.status(500).json({ error: "Internal Server Error" });
+  if (dbResultRes.status === "fulfilled") {
+    shipment = dbResultRes.value[0];
+    cache.set(cacheKey, dbResultRes.value[0] || null, 3600);
+  } else {
+    console.error(`DB API call error: ${dbResultRes.reason.message}`);
   }
+
+  if (apiResultRes.status === "fulfilled") {
+    console.log("apiResValue", apiResultRes.value);
+    shipmentApiResult = apiResultRes.value;
+  } else {
+    console.error(`API call error: ${apiResultRes.reason.message}`);
+  }
+
+  response.json({
+    shipment: shipment ?? {},
+    lastKnownLocation: shipmentCache ?? [],
+    liveStatus: shipmentApiResult ?? "Unknown",
+  });
 }
