@@ -5,7 +5,7 @@ import { type Order_Status } from "../types/order.js";
 export async function getCustomerOrdersWithItems(
   request: Request,
   response: Response,
-): Promise<Order_Status> {
+) {
   const user_id = Number(request.params.id);
   const orders = await Order.findAll({
     where: { user_id },
@@ -29,5 +29,5 @@ export async function getCustomerOrdersWithItems(
       const exhaustiveCheck: never = result;
       return exhaustiveCheck;
   }
-  return orderStatus;
+  response.send(orderStatus);
 }

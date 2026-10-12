@@ -1,9 +1,9 @@
+import assert from "node:assert/strict";
+import request from "supertest";
 import test, { after, before } from "node:test";
-import assert from "node:assert";
+import app from "../app.js";
 import { sequelize } from "../conn.js";
 import { Order, OrderItem } from "../models/order.js";
-import { getCustomerOrdersWithItems } from "../services/order-service.js";
-import type { Order_Status } from "../types/order.js";
 
 before(async () => {
   await sequelize.sync({ force: true });
@@ -20,26 +20,22 @@ after(async () => {
   await sequelize.close();
 });
 
-test("should return status as FOUND when orders exist for a user", async () => {
-  const response = {} as any;
-  const request = {} as any;
+test("GET /order/:id returns orders and items for a user", async () => {
+  const response = await request(app).get("/order/1");
 
-  request.params = { id: "1" }; // Get orders for user with id 1
-  const result: Order_Status = await getCustomerOrdersWithItems(
-    request,
-    response,
-  );
-  assert.equal(result.status, "FOUND");
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body.status, "FOUND");
+  assert.equal(response.body.orders.length, 1);
+  assert.equal(response.body.orders[0].name, "Test order");
+  assert.equal(response.body.orders[0].user_id, 1);
+  assert.equal(response.body.orders[0].OrderItems.length, 1);
+  assert.equal(response.body.orders[0].OrderItems[0].name, "Test item");
+  assert.equal(response.body.orders[0].OrderItems[0].sku, "TEST-001");
 });
 
-test("should return status as NOT_FOUND when no orders exist for a user", async () => {
-  const response = {} as any;
-  const request = {} as any;
+test("GET /order/:id returns NOT_FOUND when a user has no orders", async () => {
+  const response = await request(app).get("/order/3");
 
-  request.params = { id: "3" }; // Get orders for user with id 3
-  const result: Order_Status = await getCustomerOrdersWithItems(
-    request,
-    response,
-  );
-  assert.equal(result.status, "NOT_FOUND");
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(response.body, { status: "NOT_FOUND", orders: [] });
 });
