@@ -4,8 +4,19 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-variables:
+services:
+  mysql:
+    image: mysql:8.0
+    env:
+      MYSQL_ROOT_PASSWORD: $(MYSQL_ROOT_PASSWORD)
+      MYSQL_DATABASE: test_db
+    ports:
+      - 3306:3306
+    # Essential for MySQL initialization checks on hosted runners
+    options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
+variables:
+  # Define MYSQL_ROOT_PASSWORD as a secret pipeline variable in Azure DevOps.
   # Azure Resource Manager connection created during pipeline creation
   azureSubscription: '534a04fa-2bc4-440a-956b-bffd749e21f6'
 
@@ -25,4 +36,6 @@ steps:
       npm ci
       npm run build
       npm test
+    env:
+      DB_PASSWORD: $(MYSQL_ROOT_PASSWORD)
     displayName: 'Install, build, and test'
