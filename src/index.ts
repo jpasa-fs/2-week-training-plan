@@ -6,8 +6,13 @@ const app: Express = express();
 
 app.get("/order/:id", getCustomerOrdersWithItems);
 
-sequelize.sync().then(() => {
-  app.listen(process.env.PORT ?? 3000, () => {
-    console.log(`Server is running on port ${process.env.PORT ?? 3000}`);
+sequelize
+  .sync()
+  .then(() => {
+    app.listen(process.env.PORT ?? 3000, () => {
+      console.log(`Server is running on port ${process.env.PORT ?? 3000}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Unable to connect to the database:", error);
   });
-});

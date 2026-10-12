@@ -18,7 +18,7 @@ export const OrderItem = sequelize.define(
   {
     name: DataTypes.STRING,
     sku: DataTypes.STRING,
-    price: DataTypes.INTEGER,
+    price: DataTypes.DECIMAL(10, 2),
     order_id: DataTypes.INTEGER,
   },
   {

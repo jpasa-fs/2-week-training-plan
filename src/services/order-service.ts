@@ -5,11 +5,16 @@ export async function getCustomerOrdersWithItems(
   request: Request,
   response: Response,
 ) {
-  const user_id = Number(request.params.id);
-  const orders = await Order.findAll({
-    where: { user_id },
-    include: OrderItem,
-  });
+  try {
+    const user_id = Number(request.params.id);
+    const orders = await Order.findAll({
+      where: { user_id },
+      include: OrderItem,
+    });
 
-  response.json(orders);
+    response.status(200).json(orders);
+  } catch (error) {
+    console.error("Error fetching customer orders:", error);
+    response.status(500).json({ error: "Internal Server Error" });
+  }
 }
