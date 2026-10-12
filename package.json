@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "npx tsc && node dist/index.js",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "build": "npx tsc",
+    "test" : "echo \"No tests configured yet\""
   },
   "keywords": [],
   "author": "Joanna Reggie Pasa",
