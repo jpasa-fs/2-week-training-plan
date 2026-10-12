@@ -24,7 +24,7 @@ app.get("/", async (_request: Request, response: Response) => {
     }
 
     const greeting = sendGreeting(user);
-    response.json(greeting);
+    response.send(greeting);
   } catch (error) {
     console.error(error);
     response.status(500).send("Internal Server Error");
